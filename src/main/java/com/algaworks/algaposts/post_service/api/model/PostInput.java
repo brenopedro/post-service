@@ -1,0 +1,11 @@
+package com.algaworks.algaposts.post_service.api.model;
+
+import lombok.Data;
+
+@Data
+public class PostInput {
+
+    private String title;
+    private String body;
+    private String author;
+}
