@@ -6,10 +6,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PostSummaryOutput {
+public class PostMessageOutput {
 
-    private TSID id;
-    private String title;
-    private String body;
-    private String author;
+    private TSID postId;
+    private String postBody;
 }

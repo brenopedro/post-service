@@ -1,5 +1,6 @@
 package com.algaworks.algaposts.post_service.api.model;
 
+import io.hypersistence.tsid.TSID;
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import lombok.Data;
 @Builder
 public class PostOutput {
 
-    private String id;
+    private TSID id;
     private String title;
     private String body;
     private String author;
