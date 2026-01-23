@@ -31,29 +31,19 @@ public class RabbitMQConfig {
     public Queue queuePostService() {
         Map<String, Object> args = new HashMap<>();
         args.put("x-dead-letter-exchange", "");
-        args.put("x-dead-letter-routing-key", DEAD_LETTER_TEXT_PROCESSOR_QUEUE);
-        return QueueBuilder.durable(TEXT_PROCESSOR_QUEUE)
+        args.put("x-dead-letter-routing-key", DEAD_LETTER_PROCESSING_RESULT_QUEUE);
+        return QueueBuilder.durable(PROCESSING_RESULT_QUEUE)
                 .withArguments(args).build();
     }
 
     @Bean
     public Queue deadLetterQueuePostService() {
-        return QueueBuilder.durable(DEAD_LETTER_TEXT_PROCESSOR_QUEUE).build();
-    }
-
-    @Bean
-    public Queue queueProcessingResult() {
-        return QueueBuilder.durable(PROCESSING_RESULT_QUEUE).build();
+        return QueueBuilder.durable(DEAD_LETTER_PROCESSING_RESULT_QUEUE).build();
     }
 
     @Bean
     public Binding bindingPostService() {
         return BindingBuilder.bind(queuePostService()).to(exchange());
-    }
-
-    @Bean
-    public Binding bindingProcessingResult() {
-        return BindingBuilder.bind(queueProcessingResult()).to(exchange());
     }
 
     @Bean
