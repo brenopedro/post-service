@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import static com.algaworks.algaposts.post_service.infrastructure.rabbitmq.RabbitMQQueueConstants.EXCHANGE;
+import static com.algaworks.algaposts.post_service.infrastructure.rabbitmq.RabbitMQQueueConstants.ROUTING_KEY_RECEIVED;
 
 @Slf4j
 @RestController
@@ -36,7 +37,7 @@ public class PostsController {
             msg.getMessageProperties().setHeader("postId", message.getPostId().toString());
             return msg;
         };
-        rabbitTemplate.convertAndSend(EXCHANGE, "", message, messagePostProcessor);
+        rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY_RECEIVED, message, messagePostProcessor);
 
         return null;
     }
