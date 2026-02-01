@@ -63,7 +63,13 @@ public class PostsController {
 
     @GetMapping
     public Page<PostSummaryOutput> listPosts(@PageableDefault Pageable pageable) {
-        return null;
+        return postMessageService.findAllByPostId(pageable)
+                .map(entity -> PostSummaryOutput.builder()
+                        .title(entity.getTitle())
+                        .id(entity.getPostId().getValue())
+                        .author(entity.getAuthor())
+                        .body(entity.getBody())
+                        .build());
     }
 
     private PostMessageOutput toMessage(PostInput input) {

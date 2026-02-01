@@ -9,6 +9,8 @@ import com.algaworks.algaposts.post_service.domain.repository.PostMessageReposit
 import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -50,5 +52,9 @@ public class PostMessageService {
                     log.error("Processed post with ID: {} not found", postId);
                     return new PostNotFoundException("Processed post not found");
                 });
+    }
+
+    public Page<PostEntity> findAllByPostId(Pageable pageable) {
+        return postMessageRepository.findAll(pageable);
     }
 }
