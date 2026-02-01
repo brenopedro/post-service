@@ -5,6 +5,7 @@ import com.algaworks.algaposts.post_service.api.model.PostMessageOutput;
 import com.algaworks.algaposts.post_service.api.model.PostOutput;
 import com.algaworks.algaposts.post_service.api.model.PostSummaryOutput;
 import com.algaworks.algaposts.post_service.common.IdGenerator;
+import com.algaworks.algaposts.post_service.domain.service.PostMessageService;
 import io.hypersistence.tsid.TSID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,20 +27,24 @@ import static com.algaworks.algaposts.post_service.infrastructure.rabbitmq.Rabbi
 public class PostsController {
 
     private final RabbitTemplate rabbitTemplate;
+    private final PostMessageService postMessageService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PostOutput createPost(@RequestBody PostInput input) {
         PostMessageOutput message = toMessage(input);
-        log.info("Conteúdo do post: " + message);
+        log.info("Conteúdo do post: {}", message);
 
-        MessagePostProcessor messagePostProcessor = (MessagePostProcessor) msg -> {
+        MessagePostProcessor messagePostProcessor = msg -> {
             msg.getMessageProperties().setHeader("postId", message.getPostId().toString());
             return msg;
         };
+
         rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY_RECEIVED, message, messagePostProcessor);
 
-        return null;
+        postMessageService.save(input, message.getPostId());
+
+        return toPostOutput(input, message.getPostId());
     }
 
     @GetMapping("/{postId}")
@@ -56,6 +61,15 @@ public class PostsController {
         return PostMessageOutput.builder()
                 .postId(IdGenerator.generateId())
                 .postBody(input.getBody())
+                .build();
+    }
+
+    private PostOutput toPostOutput(PostInput input, TSID postId) {
+        return PostOutput.builder()
+                .id(postId)
+                .title(input.getTitle())
+                .body(input.getBody())
+                .author(input.getAuthor())
                 .build();
     }
 }
