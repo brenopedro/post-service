@@ -22,4 +22,6 @@ public class PostEntity {
     private String title;
     private String body;
     private String author;
+    private Integer wordCount;
+    private Double calculatedValue;
 }

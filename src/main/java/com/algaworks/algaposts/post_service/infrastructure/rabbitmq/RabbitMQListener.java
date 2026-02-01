@@ -1,7 +1,7 @@
 package com.algaworks.algaposts.post_service.infrastructure.rabbitmq;
 
 import com.algaworks.algaposts.post_service.domain.model.PostProcessedInput;
-import com.algaworks.algaposts.post_service.domain.service.PostProcessedService;
+import com.algaworks.algaposts.post_service.domain.service.PostMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import static com.algaworks.algaposts.post_service.infrastructure.rabbitmq.Rabbi
 @RequiredArgsConstructor
 public class RabbitMQListener {
 
-    private final PostProcessedService postProcessedService;
+    private final PostMessageService postMessageService;
 
     @SneakyThrows
     @RabbitListener(queues = PROCESSING_RESULT_QUEUE, concurrency = "2-3")
@@ -29,6 +29,6 @@ public class RabbitMQListener {
         log.info("Received data: {}", data);
         log.info("Received headers: {}", headers);
 
-        postProcessedService.processPostMessage(data);
+        postMessageService.processPostMessage(data);
     }
 }

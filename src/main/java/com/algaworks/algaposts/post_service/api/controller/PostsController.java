@@ -5,6 +5,8 @@ import com.algaworks.algaposts.post_service.api.model.PostMessageOutput;
 import com.algaworks.algaposts.post_service.api.model.PostOutput;
 import com.algaworks.algaposts.post_service.api.model.PostSummaryOutput;
 import com.algaworks.algaposts.post_service.common.IdGenerator;
+import com.algaworks.algaposts.post_service.domain.exception.PostNotFoundException;
+import com.algaworks.algaposts.post_service.domain.model.PostEntity;
 import com.algaworks.algaposts.post_service.domain.service.PostMessageService;
 import io.hypersistence.tsid.TSID;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.algaworks.algaposts.post_service.infrastructure.rabbitmq.RabbitMQQueueConstants.EXCHANGE;
@@ -48,8 +51,14 @@ public class PostsController {
     }
 
     @GetMapping("/{postId}")
-    public PostOutput getPost(@PathVariable TSID postId) {
-        return null;
+    public ResponseEntity<PostOutput> getPost(@PathVariable TSID postId) {
+        try {
+            PostEntity entity = postMessageService.findById(postId);
+            return ResponseEntity.ok(toPostOutput(entity));
+        } catch (PostNotFoundException e) {
+            log.error("Post with ID {} not found", postId);
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping
@@ -70,6 +79,17 @@ public class PostsController {
                 .title(input.getTitle())
                 .body(input.getBody())
                 .author(input.getAuthor())
+                .build();
+    }
+
+    private PostOutput toPostOutput(PostEntity entity) {
+        return PostOutput.builder()
+                .id(entity.getPostId().getValue())
+                .title(entity.getTitle())
+                .body(entity.getBody())
+                .author(entity.getAuthor())
+                .wordCount(entity.getWordCount())
+                .calculatedValue(entity.getCalculatedValue())
                 .build();
     }
 }

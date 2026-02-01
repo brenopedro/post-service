@@ -1,8 +1,10 @@
 package com.algaworks.algaposts.post_service.domain.service;
 
 import com.algaworks.algaposts.post_service.api.model.PostInput;
+import com.algaworks.algaposts.post_service.domain.exception.PostNotFoundException;
 import com.algaworks.algaposts.post_service.domain.model.PostEntity;
 import com.algaworks.algaposts.post_service.domain.model.PostId;
+import com.algaworks.algaposts.post_service.domain.model.PostProcessedInput;
 import com.algaworks.algaposts.post_service.domain.repository.PostMessageRepository;
 import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,25 @@ public class PostMessageService {
 
         postMessageRepository.save(entity);
         log.info("Post message with ID: {} saved successfully", tsid);
+    }
+
+    public void processPostMessage(PostProcessedInput input) {
+        log.info("Processing post message...");
+
+        PostEntity entity = findById(input.getPostId().getValue());
+        entity.setWordCount(input.getWordCount());
+        entity.setCalculatedValue(input.getCalculatedValue());
+        postMessageRepository.saveAndFlush(entity);
+
+        log.info("Post message processed and saved: {}", input);
+    }
+
+    public PostEntity findById(TSID postId) {
+        log.info("Finding processed post with ID: {}", postId);
+        return postMessageRepository.findById(new PostId(postId))
+                .orElseThrow(() -> {
+                    log.error("Processed post with ID: {} not found", postId);
+                    return new PostNotFoundException("Processed post not found");
+                });
     }
 }
