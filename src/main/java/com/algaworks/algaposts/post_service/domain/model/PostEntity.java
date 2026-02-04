@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Entity
 @Builder
@@ -18,7 +20,7 @@ public class PostEntity {
 
     @Id
     @AttributeOverride(name = "value", column = @Column(name = "id", columnDefinition = "BIGINT"))
-    private PostId postId;
+    private UUID postId;
     private String title;
     private String body;
     private String author;

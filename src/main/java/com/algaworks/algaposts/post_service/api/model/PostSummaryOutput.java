@@ -1,15 +1,16 @@
 package com.algaworks.algaposts.post_service.api.model;
 
-import io.hypersistence.tsid.TSID;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 @Builder
 public class PostSummaryOutput {
 
-    private TSID id;
+    private UUID id;
     private String title;
-    private String body;
+    private String summary;
     private String author;
 }

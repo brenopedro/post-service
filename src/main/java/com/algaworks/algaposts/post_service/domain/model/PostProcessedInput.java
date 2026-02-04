@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Entity
 @NoArgsConstructor
@@ -16,7 +18,7 @@ public class PostProcessedInput {
 
     @Id
     @AttributeOverride(name = "value", column = @Column(name = "id", columnDefinition = "BIGINT"))
-    private PostId postId;
+    private UUID postId;
     private Integer wordCount;
     private Double calculatedValue;
 }

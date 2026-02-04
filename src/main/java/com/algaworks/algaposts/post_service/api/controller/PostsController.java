@@ -4,11 +4,9 @@ import com.algaworks.algaposts.post_service.api.model.PostInput;
 import com.algaworks.algaposts.post_service.api.model.PostMessageOutput;
 import com.algaworks.algaposts.post_service.api.model.PostOutput;
 import com.algaworks.algaposts.post_service.api.model.PostSummaryOutput;
-import com.algaworks.algaposts.post_service.common.IdGenerator;
 import com.algaworks.algaposts.post_service.domain.exception.PostNotFoundException;
 import com.algaworks.algaposts.post_service.domain.model.PostEntity;
 import com.algaworks.algaposts.post_service.domain.service.PostMessageService;
-import io.hypersistence.tsid.TSID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.MessagePostProcessor;
@@ -19,6 +17,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.UUID;
 
 import static com.algaworks.algaposts.post_service.infrastructure.rabbitmq.RabbitMQQueueConstants.EXCHANGE;
 import static com.algaworks.algaposts.post_service.infrastructure.rabbitmq.RabbitMQQueueConstants.ROUTING_KEY_RECEIVED;
@@ -51,7 +52,7 @@ public class PostsController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostOutput> getPost(@PathVariable TSID postId) {
+    public ResponseEntity<PostOutput> getPost(@PathVariable UUID postId) {
         try {
             PostEntity entity = postMessageService.findById(postId);
             return ResponseEntity.ok(toPostOutput(entity));
@@ -66,20 +67,20 @@ public class PostsController {
         return postMessageService.findAllByPostId(pageable)
                 .map(entity -> PostSummaryOutput.builder()
                         .title(entity.getTitle())
-                        .id(entity.getPostId().getValue())
+                        .id(entity.getPostId())
                         .author(entity.getAuthor())
-                        .body(entity.getBody())
+                        .summary(String.join(System.lineSeparator(), Arrays.copyOfRange(entity.getBody().split("\\R"), 0, Math.min(3, entity.getBody().split("\\R").length))))
                         .build());
     }
 
     private PostMessageOutput toMessage(PostInput input) {
         return PostMessageOutput.builder()
-                .postId(IdGenerator.generateId())
+                .postId(UUID.randomUUID())
                 .postBody(input.getBody())
                 .build();
     }
 
-    private PostOutput toPostOutput(PostInput input, TSID postId) {
+    private PostOutput toPostOutput(PostInput input, UUID postId) {
         return PostOutput.builder()
                 .id(postId)
                 .title(input.getTitle())
@@ -90,7 +91,7 @@ public class PostsController {
 
     private PostOutput toPostOutput(PostEntity entity) {
         return PostOutput.builder()
-                .id(entity.getPostId().getValue())
+                .id(entity.getPostId())
                 .title(entity.getTitle())
                 .body(entity.getBody())
                 .author(entity.getAuthor())
